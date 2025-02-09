@@ -1,10 +1,10 @@
 #include "struct.c"
 
-//function to create a new transaction
-//returns the pointer to the new transaction
-//returns NULL if memory allocation fails
-//the transaction ID is automatically assigned
-//the timestamp is automatically assigned
+// function to create a new transaction
+// returns the pointer to the new transaction
+// returns NULL if memory allocation fails
+// the transaction ID is automatically assigned
+// the timestamp is automatically assigned
 
 Transaction *CreateTransaction()
 {
@@ -39,18 +39,18 @@ Transaction *CreateTransaction()
     return newtransaction;
 }
 
-
-//function to insert a new transaction
-//returns SUCCESS if the transaction is successfully inserted
-//returns FAIL if the transaction is NULL
-//the transaction is inserted at the beginning of the linked list
-//the transaction is also inserted in the seller and buyer linked lists
-//if the seller or buyer does not exist, the transaction is not inserted
-//if the buyer-seller pair does not exist, a new pair is created
-//if the buyer-seller pair exists, the total energy and total revenue are updated
-//if the buyer-seller pair has more than 4 transactions, the buyer is added to the seller's regular buyers list
-//if the transaction is successfully inserted, the function returns SUCCESS
-//if the transaction is NULL, the function returns FAIL
+// function to insert a new transaction
+// returns SUCCESS if the transaction is successfully inserted
+// returns FAIL if the transaction is NULL
+// the transaction is inserted at the beginning of the linked list
+// the transaction is also inserted in the seller and buyer linked lists
+// if the seller or buyer does not exist, the transaction is not inserted
+// if the buyer-seller pair does not exist, a new pair is created
+// if the buyer-seller pair exists, the total energy and total revenue are updated
+// if the buyer-seller pair has more than 4 transactions, the buyer is added to the seller's regular buyers list
+// if the transaction is successfully inserted, the function returns SUCCESS
+// if the transaction is NULL, the function returns FAIL
+/*
 status_code InsertTransaction()
 {
     status_code sc = SUCCESS;
@@ -85,11 +85,17 @@ status_code InsertTransaction()
         temp = temp->next;
     }
 
+    if (thisseller == NULL)
+    {
+        printf("Seller not found\n");
+        sc = FAIL;
+    }
+
     // for buyer structure
 
     Buyer *tempB = buyerHead;
     int flagB = 1;
-    Buyer *thisbuyer= NULL;
+    Buyer *thisbuyer = NULL;
     while (tempB != NULL && flagB)
     {
         if (tempB->buyerID == newtransaction->buyerID)
@@ -98,9 +104,16 @@ status_code InsertTransaction()
             tempB->transactionsB = newtransaction;
             tempB->TotalenergyAmount += (newtransaction->energyAmount);
             flagB = 0;
-            Buyer *thisbuyer = tempB;
+            thisbuyer = tempB;
         }
+
         tempB = tempB->next;
+    }
+
+    if (thisbuyer == NULL)
+    {
+        printf("Buyer not found\n");
+        sc = FAIL;
     }
 
     BuyerSellerPair *tempPair = pairHead;
@@ -113,22 +126,30 @@ status_code InsertTransaction()
             tempPair->totalRevenue += (newtransaction->energyAmount * newtransaction->pricePerKwh);
             tempPair->BSCount += 1;
             flagPair = 0;
-            if( tempPair->BSCount > 4 ){
-                //adding buyer to regular buyers list
+            if (tempPair->BSCount > 4)
+            {
+                // adding buyer to regular buyers list
                 Buyer *tempbuyer = thisseller->regularBuyers;
-                if(tempbuyer == NULL){
+                if (tempbuyer == NULL)
+                {
                     thisseller->regularBuyers = thisbuyer;
                 }
-                else{
-                    while(tempbuyer->next != NULL){
+                else
+                {
+                    while (tempbuyer->next != NULL)
+                    {
                         tempbuyer = tempbuyer->next;
                     }
                     tempbuyer->next = thisbuyer;
+                }
             }
+
+            tempPair = tempPair->next;
         }
-        //if the pair does not exist
-        else{
-            //creating a new pair
+        // if the pair does not exist
+        // creating a new pair
+        if (flagPair)
+        {
             BuyerSellerPair *newPair = (BuyerSellerPair *)malloc(sizeof(BuyerSellerPair));
             if (newPair == NULL)
             {
@@ -145,16 +166,164 @@ status_code InsertTransaction()
                 pairHead = newPair;
             }
         }
+
+        printf("\n\n----------------------------------------\n\n");
+    }
+    return sc;
+}*/
+
+status_code InsertTransaction()
+{
+    status_code sc = SUCCESS;
+    Transaction *newtransaction = CreateTransaction();
+    if (newtransaction == NULL)
+    {
+        printf("Transaction creation failed\n");
+        return FAIL;
+    }
+
+    // Insert into the main transaction list
+    newtransaction->next = head;
+    head = newtransaction;
+
+    // For seller structure
+    Seller *temp = sellerHead;
+    int flagseller = 1;
+    Seller *thisseller = NULL;
+    while (temp != NULL && flagseller)
+    {
+        if (temp->sellerID == newtransaction->sellerID)
+        {
+            newtransaction->next = temp->transactions;
+            temp->transactions = newtransaction;
+            temp->totalRevenue += newtransaction->energyAmount * newtransaction->pricePerKwh;
+            thisseller = temp;
+            flagseller = 0;
+        }
+        temp = temp->next;
+    }
+
+    if (thisseller == NULL)
+    {
+        //create a new seller 
+        Seller *newSeller = (Seller *)malloc(sizeof(Seller));
+        if (newSeller == NULL)
+        {
+            printf("Memory allocation failed for Seller\n");
+            sc = FAIL;
+        }
+        else
+        {
+            newSeller->sellerID = newtransaction->sellerID;
+            newSeller->totalRevenue = newtransaction->energyAmount * newtransaction->pricePerKwh;
+            newSeller->transactions = newtransaction;
+            newSeller->regularBuyers = NULL;
+            newSeller->next = sellerHead;
+            sellerHead = newSeller;
+            thisseller = newSeller;
+        }
+    }
+
+    // For buyer structure
+    Buyer *tempB = buyerHead;
+    int flagbuyer = 1;
+    Buyer *thisbuyer = NULL;
+    while (tempB != NULL && flagbuyer)
+    {
+        if (tempB->buyerID == newtransaction->buyerID)
+        {
+            newtransaction->next = tempB->transactionsB;
+            tempB->transactionsB = newtransaction;
+            tempB->TotalenergyAmount += newtransaction->energyAmount;
+            thisbuyer = tempB;
+            flagbuyer = 0;
+        }
+        tempB = tempB->next;
+    }
+
+    if (thisbuyer == NULL)
+    {
+        //create a new buyer
+        Buyer *newBuyer = (Buyer *)malloc(sizeof(Buyer));   
+        if (newBuyer == NULL)
+        {
+            printf("Memory allocation failed for Buyer\n");
+            sc = FAIL;
+        }
+        else
+        {
+            newBuyer->buyerID = newtransaction->buyerID;
+            newBuyer->TotalenergyAmount = newtransaction->energyAmount;
+            newBuyer->transactionsB = newtransaction;
+            newBuyer->next = buyerHead;
+            buyerHead = newBuyer;
+            thisbuyer = newBuyer;
+        }
+    }
+
+    // For Buyer-Seller Pair
+    BuyerSellerPair *tempPair = pairHead;
+    int flagPair = 1;
+    BuyerSellerPair *foundPair = NULL;
+    while (tempPair != NULL && flagPair) // check if pair already exists
+    {
+        if (tempPair->buyerID == newtransaction->buyerID && tempPair->sellerID == newtransaction->sellerID)
+        {
+            tempPair->totalEnergy += newtransaction->energyAmount;
+            tempPair->totalRevenue += newtransaction->energyAmount * newtransaction->pricePerKwh;
+            tempPair->BSCount++;
+            foundPair = tempPair;
+            flagPair = 0;
+        }
         tempPair = tempPair->next;
     }
 
-    printf("\n\n----------------------------------------\n\n");
+    if (foundPair == NULL)
+    { // create a new pair if it doesn't exist
+        BuyerSellerPair *newPair = (BuyerSellerPair *)malloc(sizeof(BuyerSellerPair));
+        if (newPair == NULL)
+        {
+            printf("Memory allocation failed for BuyerSellerPair\n");
+            sc = FAIL;
+        }
+        else
+        {
+            newPair->buyerID = newtransaction->buyerID;
+            newPair->sellerID = newtransaction->sellerID;
+            newPair->totalEnergy = newtransaction->energyAmount;
+            newPair->totalRevenue = newtransaction->energyAmount * newtransaction->pricePerKwh;
+            newPair->BSCount = 1;
+            newPair->next = pairHead;
+            pairHead = newPair;
+            foundPair = newPair;
+        }
+    }
 
+    // Adding buyer to regularBuyers list if BSCount > 4
+    if (foundPair->BSCount > 4 && thisseller != NULL)
+    {
+        Buyer *tempbuyer = thisseller->regularBuyers;
+        int alreadyExists = 0;
+        while (tempbuyer != NULL && !alreadyExists) // check if buyer already exists in the list
+        {
+            if (tempbuyer->buyerID == thisbuyer->buyerID)
+            {
+                alreadyExists = 1;
+            }
+            tempbuyer = tempbuyer->next;
+        }
+        if (!alreadyExists)
+        {
+            thisbuyer->next = thisseller->regularBuyers;
+            thisseller->regularBuyers = thisbuyer;
+        }
+    }
+
+    printf("\nTransaction successfully inserted.\n");
     return sc;
 }
-}
 
-//function to update a transaction
+// function to update a transaction
 status_code UpdateTransaction(int Transaction_ID)
 {
     status_code sc = SUCCESS;
@@ -288,7 +457,7 @@ int TotalRevenueBySeller(int SID)
     while (temp != NULL && flag)
     {
         if (temp->sellerID == SID)
-        {   
+        {
             revenue = temp->totalRevenue;
             printf("The total revenue by seller is %.2lf\n", temp->totalRevenue);
             flag = 0;
@@ -301,7 +470,7 @@ int TotalRevenueBySeller(int SID)
     return revenue;
 }
 
-//function to check if a timestamp is within a specified period
+// function to check if a timestamp is within a specified period
 
 int isWithinPeriod(const char *timestamp, const char *start, const char *end)
 {
@@ -332,8 +501,8 @@ void listTransactionsInPeriod(const char *start, const char *end)
     printf("\n\n----------------------------------------\n\n");
 }
 
-//function for sorting based on amount of energy of each transaction
-//sorted in descending order
+// function for sorting based on amount of energy of each transaction
+// sorted in descending order
 
 Transaction *MergeListsEnergy(Transaction *list1, Transaction *list2)
 {
@@ -354,19 +523,24 @@ Transaction *MergeListsEnergy(Transaction *list1, Transaction *list2)
             temp = list2;
             list2 = list2->next;
         }
-        if(list1) temp->next = list1;
-        else temp->next = list2;
+        if (list1)
+            temp->next = list1;
+        else
+            temp->next = list2;
 
         return dummy->next;
     }
 }
 
-Transaction *SortEnergy(Transaction *head){
-    if(head!= NULL && head->next!=NULL){
+Transaction *SortEnergy(Transaction *head)
+{
+    if (head != NULL && head->next != NULL)
+    {
         Transaction *slow = head;
         Transaction *fast = head->next;
 
-        while(fast != NULL && fast->next != NULL){
+        while (fast != NULL && fast->next != NULL)
+        {
             slow = slow->next;
             fast = fast->next->next;
         }
@@ -378,25 +552,29 @@ Transaction *SortEnergy(Transaction *head){
         list1 = SortEnergy(list1);
         list2 = SortEnergy(list2);
 
-        head =  MergeListsEnergy(list1, list2);
+        head = MergeListsEnergy(list1, list2);
     }
 
     return head;
 }
 
-int HighestEnergyAmount(Transaction *head){
+int HighestEnergyAmount(Transaction *head)
+{
     int highest_energy = 0;
-    if(head == NULL) highest_energy = 0;
-    else if (head -> next == NULL) highest_energy = head -> energyAmount;
-    else{
+    if (head == NULL)
+        highest_energy = 0;
+    else if (head->next == NULL)
+        highest_energy = head->energyAmount;
+    else
+    {
         SortEnergy(head);
-        highest_energy = head -> energyAmount;
+        highest_energy = head->energyAmount;
     }
     return highest_energy;
 }
 
-//sorting list of buyers based on total energy amount
-//sorted in ascending
+// sorting list of buyers based on total energy amount
+// sorted in ascending
 Buyer *MergeListsBuyerEnergy(Buyer *list1, Buyer *list2)
 {
     Buyer *dummy;
@@ -416,19 +594,24 @@ Buyer *MergeListsBuyerEnergy(Buyer *list1, Buyer *list2)
             temp = list2;
             list2 = list2->next;
         }
-        if(list1) temp->next = list1;
-        else temp->next = list2;
+        if (list1)
+            temp->next = list1;
+        else
+            temp->next = list2;
 
         return dummy->next;
     }
 }
 
-Buyer *SortBuyerEnergy(Buyer *buyerHead){
-    if(buyerHead!= NULL && buyerHead->next!=NULL){
+Buyer *SortBuyerEnergy(Buyer *buyerHead)
+{
+    if (buyerHead != NULL && buyerHead->next != NULL)
+    {
         Buyer *slow = buyerHead;
         Buyer *fast = buyerHead->next;
 
-        while(fast != NULL && fast->next != NULL){
+        while (fast != NULL && fast->next != NULL)
+        {
             slow = slow->next;
             fast = fast->next->next;
         }
@@ -440,26 +623,28 @@ Buyer *SortBuyerEnergy(Buyer *buyerHead){
         list1 = SortBuyerEnergy(list1);
         list2 = SortBuyerEnergy(list2);
 
-        buyerHead =  MergeListsBuyerEnergy(list1, list2);
+        buyerHead = MergeListsBuyerEnergy(list1, list2);
     }
 
     return buyerHead;
 }
 
-//sorting buyer energy amount
+// sorting buyer energy amount
 
-
-void SortBuyerEnergyAmount(){
-    if(buyerHead == NULL) printf("No buyers available\n");
-    else{
+void SortBuyerEnergyAmount()
+{
+    if (buyerHead == NULL)
+        printf("No buyers available\n");
+    else
+    {
         SortBuyerEnergy(buyerHead);
     }
 
     printf("\n\n----------------------------------------\n\n");
 }
 
-//sorting Buyer-Seller Pair
-//sorted in desending order based on no. of transactions between them
+// sorting Buyer-Seller Pair
+// sorted in desending order based on no. of transactions between them
 
 BuyerSellerPair *MergeListsPair(BuyerSellerPair *list1, BuyerSellerPair *list2)
 {
@@ -479,19 +664,24 @@ BuyerSellerPair *MergeListsPair(BuyerSellerPair *list1, BuyerSellerPair *list2)
             temp = list2;
             list2 = list2->next;
         }
-        if(list1) temp->next = list1;
-        else temp->next = list2;
+        if (list1)
+            temp->next = list1;
+        else
+            temp->next = list2;
 
         return dummy->next;
     }
 }
 
-BuyerSellerPair *SortPair(BuyerSellerPair *pairHead){
-    if(pairHead!= NULL && pairHead->next!=NULL){
+BuyerSellerPair *SortPair(BuyerSellerPair *pairHead)
+{
+    if (pairHead != NULL && pairHead->next != NULL)
+    {
         BuyerSellerPair *slow = pairHead;
         BuyerSellerPair *fast = pairHead->next;
 
-        while(fast != NULL && fast->next != NULL){
+        while (fast != NULL && fast->next != NULL)
+        {
             slow = slow->next;
             fast = fast->next->next;
         }
@@ -503,21 +693,20 @@ BuyerSellerPair *SortPair(BuyerSellerPair *pairHead){
         list1 = SortPair(list1);
         list2 = SortPair(list2);
 
-        pairHead =  MergeListsPair(list1, list2);
+        pairHead = MergeListsPair(list1, list2);
     }
 
     return pairHead;
 }
 
-void SortBuyerSellerPair(){
-    if(pairHead == NULL) printf("No Buyer-Seller pairs available\n");
-    else{
+void SortBuyerSellerPair()
+{
+    if (pairHead == NULL)
+        printf("No Buyer-Seller pairs available\n");
+    else
+    {
         SortPair(pairHead);
     }
 
     printf("\n\n----------------------------------------\n\n");
 }
-
-
-
-

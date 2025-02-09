@@ -1,4 +1,5 @@
 #include "def.h"
+#include "fileop.c"
 
 int main()
 {
@@ -6,6 +7,7 @@ int main()
     Transaction *newtransaction;
     status_code sc;
     int exitchoice = 1;
+    read_transactions_from_file();
     while (exitchoice)
     {
         printf("1. Insert a new transaction\n");
@@ -72,6 +74,7 @@ int main()
             break;
         case 12:
             exitchoice = 0;
+            update_file();
             break;
         }
     }
