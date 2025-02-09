@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,7 +8,7 @@ typedef enum
     SUCCESS
 } status_code;
 
-//to store the transaction details
+// to store the transaction details
 typedef struct Transaction_tag
 {
     int transactionID;
@@ -21,12 +20,7 @@ typedef struct Transaction_tag
     struct Transaction_tag *next;
 } Transaction;
 
-Transaction *head = NULL;
-
-//to store the transaction details
-int transactionCount = 0;
-
-//to store the buyer details
+// to store the buyer details
 typedef struct Buyer_tag
 {
     int buyerID;
@@ -36,10 +30,7 @@ typedef struct Buyer_tag
 
 } Buyer;
 
-Buyer *buyerHead = NULL;
-int buyerCount = 0;
-
-//to store the seller details
+// to store the seller details
 typedef struct Seller_tag
 {
     int sellerID;
@@ -51,10 +42,7 @@ typedef struct Seller_tag
     struct Seller_tag *next;
 } Seller;
 
-Seller *sellerHead = NULL;
-int sellerCount = 0;
-
-//to store the buyer-seller pair details
+// to store the buyer-seller pair details
 typedef struct BuyerSellerPair_tag
 {
     int buyerID;
@@ -65,5 +53,8 @@ typedef struct BuyerSellerPair_tag
     struct BuyerSellerPair_tag *next;
 } BuyerSellerPair;
 
-BuyerSellerPair *pairHead = NULL;
-int pairCount = 0;
+extern Buyer *buyerHead;
+extern Seller *sellerHead;
+extern Transaction *head;
+extern int transactionCount;
+extern BuyerSellerPair *pairHead;

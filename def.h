@@ -3,7 +3,8 @@
 #include "functions.c"
 
 Transaction *CreateTransaction();
-status_code InsertTransaction();
+Transaction *copyTransaction(Transaction *transact);
+status_code InsertTransaction(Transaction *newtransaction);
 status_code UpdateTransaction(int Transaction_ID);
 void DisplayBuyerList();
 void DisplayTransaction();
@@ -20,5 +21,7 @@ void SortBuyerEnergyAmount();
 BuyerSellerPair *MergeListsPair(BuyerSellerPair *list1, BuyerSellerPair *list2);
 BuyerSellerPair *SortPair(BuyerSellerPair *pairHead);
 void SortBuyerSellerPair();
+void DisplayBuyerEnergyAmount();
+void DisplayBuyerSellerPairs();
 
 #endif

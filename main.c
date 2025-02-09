@@ -19,15 +19,16 @@ int main()
         printf("7. Display the transactions within a period\n");
         printf("8. Display the transaction with the highest energy amount\n");
         printf("9. Sort the buyer list based on energy amount\n");
-        printf("10. Sort the buyer list based on energy amount and display\n");
-        printf("11. Sort the buyer-seller pair based on total energy and display\n");
-        printf("12. Exit\n");
+        printf("10. Sort the buyer-seller pair based on total energy and display\n");
+        printf("11. Exit\n");
         printf("Enter your choice: ");
         scanf("%d", &choice);
+        printf("\n\n----------------------------------------\n\n");
         switch (choice)
         {
         case 1:
-            sc = InsertTransaction(newtransaction);
+            sc = InsertTransaction(CreateTransaction());
+            update_file();
             break;
         case 2:
             printf("Enter the transaction ID to update: ");
@@ -64,19 +65,18 @@ int main()
             break;
         case 9:
             SortBuyerEnergyAmount();
+            DisplayBuyerEnergyAmount();
             break;
         case 10:
-            SortBuyerEnergyAmount();
-            DisplayBuyerList();
+            SortBuyerSellerPair();
+            DisplayBuyerSellerPairs();
             break;
         case 11:
-            SortBuyerSellerPair();
-            break;
-        case 12:
             exitchoice = 0;
-            update_file();
+            
             break;
         }
+        
     }
     return 0;
 }
