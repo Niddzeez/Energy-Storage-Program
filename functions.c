@@ -171,13 +171,13 @@ status_code InsertTransaction(Transaction *newtransaction)
     // -------- Buyer-Seller Pair -------- //
     BuyerSellerPair *tempPair = pairHead;
     BuyerSellerPair *foundPair = NULL;
-    while (tempPair != NULL && foundPair == NULL)
+    while (tempPair != NULL && foundPair==NULL)
     {
         if (tempPair->buyerID == newtransaction->buyerID && tempPair->sellerID == newtransaction->sellerID)
         {
             printf("Pair found\n");
             tempPair->totalEnergy += newtransaction->energyAmount;
-            tempPair->totalRevenue += newtransaction->energyAmount * newtransaction->pricePerKwh;
+            tempPair->totalRevenue += (newtransaction->energyAmount )* (newtransaction->pricePerKwh);
             tempPair->BSCount++;
             foundPair = tempPair;
         }
@@ -605,6 +605,9 @@ BuyerSellerPair *MergeListsPair(BuyerSellerPair *list1, BuyerSellerPair *list2)
 
 BuyerSellerPair *SortPair(BuyerSellerPair *pairHead)
 {
+
+    if(pairHead==NULL || pair->next==NULL)return pairHead;
+    
     if (pairHead != NULL && pairHead->next != NULL)
     {
         BuyerSellerPair *slow = pairHead;
@@ -622,9 +625,9 @@ BuyerSellerPair *SortPair(BuyerSellerPair *pairHead)
 
         list1 = SortPair(list1);
         list2 = SortPair(list2);
-        printf("Sorted\n");
+        
         pairHead = MergeListsPair(list1, list2);
-        printf("Merged\n");
+       
     }
 
     return pairHead;
@@ -636,7 +639,7 @@ void SortBuyerSellerPair()
         printf("No Buyer-Seller pairs available\n");
     else
     {
-        SortPair(pairHead);
+        pairHead=SortPair(pairHead);
         printf("Sorted Buyer-Seller pairs successfully\n");
     }
 
