@@ -111,6 +111,16 @@ status_code InsertTransaction(Transaction *newtransaction)
             copy->next = temp->transactions;
             temp->transactions = copy;
             temp->totalRevenue += newtransaction->energyAmount * newtransaction->pricePerKwh;
+            if(newtransaction->energyAmount<300)
+            {
+                if((temp->rateBelow300)==0.0)
+                    temp->rateBelow300 = newtransaction->pricePerKwh;
+            }
+            else
+            {
+                if(!(temp->rateAbove300)==0.0)
+                    temp->rateAbove300 = newtransaction->pricePerKwh;
+            }
             thisseller = temp;
         }
         temp = temp->next;
@@ -128,10 +138,21 @@ status_code InsertTransaction(Transaction *newtransaction)
         newSeller->sellerID = newtransaction->sellerID;
         newSeller->totalRevenue = newtransaction->energyAmount * newtransaction->pricePerKwh;
         newSeller->transactions = copyTransaction(newtransaction);
+        if(newtransaction->energyAmount<300)
+        {
+            newSeller->rateBelow300 = newtransaction->pricePerKwh;
+            newSeller->rateAbove300 = 0.0;
+        }
+        else
+        {
+            newSeller->rateAbove300 = newtransaction->pricePerKwh;
+            newSeller->rateBelow300 = 0.0;
+        }
         newSeller->regularBuyers = NULL;
         newSeller->next = sellerHead;
         sellerHead = newSeller;
         thisseller = newSeller;
+    
     }
 
     // -------- Buyer Structure -------- //
@@ -299,8 +320,8 @@ void DisplaySellerList()
 
             while (t != NULL && temp->sellerID == t->sellerID)
             {
-                printf("Transaction ID: %d | Buyer ID: %d | Energy: %.2lf kWh | Price per kWh: %.2lf | Timestamp: %s\n",
-                       t->transactionID, t->buyerID, t->energyAmount, t->pricePerKwh, t->timestamp);
+                printf("Transaction ID: %d | Buyer ID: %d | Energy: %.2lf kWh | Price per kWh: %.2lf | Timestamp: %s\n | Rate below 300KWh: %.2lf | Rate above 300KWh: %.2lf\n",
+                       t->transactionID, t->buyerID, t->energyAmount, t->pricePerKwh, t->timestamp, temp->rateBelow300, temp->rateAbove300);
                 t = t->next;
             }
 
@@ -606,7 +627,7 @@ BuyerSellerPair *MergeListsPair(BuyerSellerPair *list1, BuyerSellerPair *list2)
 BuyerSellerPair *SortPair(BuyerSellerPair *pairHead)
 {
 
-    if(pairHead==NULL || pair->next==NULL)return pairHead;
+    if(pairHead==NULL || pairHead->next==NULL)return pairHead;
     
     if (pairHead != NULL && pairHead->next != NULL)
     {
