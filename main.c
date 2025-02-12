@@ -19,7 +19,7 @@ int main()
         printf("7. Display the transactions within a period\n");
         printf("8. Display the transaction with the highest energy amount\n");
         printf("9. Sort the buyer list based on energy amount\n");
-        printf("10. Sort the buyer-seller pair based on total energy and display\n");
+        printf("10. Sort the buyer-seller pair based on transaction count and display\n");
         printf("11. Exit\n");
         printf("Enter your choice: ");
         scanf("%d", &choice);

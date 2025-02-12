@@ -26,7 +26,7 @@ void read_transactions_from_file()
                 count++;
                 continue;
             }
-            // parse the line and store the values in the transact
+            
             Transaction *transact = (Transaction *)malloc(sizeof(Transaction));
             if (transact == NULL)
             {
