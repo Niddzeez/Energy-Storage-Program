@@ -111,14 +111,14 @@ status_code InsertTransaction(Transaction *newtransaction)
             copy->next = temp->transactions;
             temp->transactions = copy;
             temp->totalRevenue += newtransaction->energyAmount * newtransaction->pricePerKwh;
-            if(newtransaction->energyAmount<300)
+            if (newtransaction->energyAmount < 300)
             {
-                if((temp->rateBelow300)==0.0)
+                if ((temp->rateBelow300) == 0.0)
                     temp->rateBelow300 = newtransaction->pricePerKwh;
             }
             else
             {
-                if(!(temp->rateAbove300)==0.0)
+                if (!(temp->rateAbove300) == 0.0)
                     temp->rateAbove300 = newtransaction->pricePerKwh;
             }
             thisseller = temp;
@@ -128,7 +128,7 @@ status_code InsertTransaction(Transaction *newtransaction)
 
     if (thisseller == NULL)
     {
-        printf("Creating new seller\n");
+
         Seller *newSeller = (Seller *)malloc(sizeof(Seller));
         if (newSeller == NULL)
         {
@@ -138,7 +138,7 @@ status_code InsertTransaction(Transaction *newtransaction)
         newSeller->sellerID = newtransaction->sellerID;
         newSeller->totalRevenue = newtransaction->energyAmount * newtransaction->pricePerKwh;
         newSeller->transactions = copyTransaction(newtransaction);
-        if(newtransaction->energyAmount<300)
+        if (newtransaction->energyAmount < 300)
         {
             newSeller->rateBelow300 = newtransaction->pricePerKwh;
             newSeller->rateAbove300 = 0.0;
@@ -152,7 +152,6 @@ status_code InsertTransaction(Transaction *newtransaction)
         newSeller->next = sellerHead;
         sellerHead = newSeller;
         thisseller = newSeller;
-    
     }
 
     // -------- Buyer Structure -------- //
@@ -162,7 +161,7 @@ status_code InsertTransaction(Transaction *newtransaction)
     {
         if (tempB->buyerID == newtransaction->buyerID)
         {
-            printf("Buyer found\n");
+
             Transaction *copy = copyTransaction(newtransaction);
             copy->next = tempB->transactionsB;
             tempB->transactionsB = copy;
@@ -174,7 +173,7 @@ status_code InsertTransaction(Transaction *newtransaction)
 
     if (thisbuyer == NULL)
     {
-        printf("Creating new buyer\n");
+
         Buyer *newBuyer = (Buyer *)malloc(sizeof(Buyer));
         if (newBuyer == NULL)
         {
@@ -192,13 +191,13 @@ status_code InsertTransaction(Transaction *newtransaction)
     // -------- Buyer-Seller Pair -------- //
     BuyerSellerPair *tempPair = pairHead;
     BuyerSellerPair *foundPair = NULL;
-    while (tempPair != NULL && foundPair==NULL)
+    while (tempPair != NULL && foundPair == NULL)
     {
         if (tempPair->buyerID == newtransaction->buyerID && tempPair->sellerID == newtransaction->sellerID)
         {
-            printf("Pair found\n");
+
             tempPair->totalEnergy += newtransaction->energyAmount;
-            tempPair->totalRevenue += (newtransaction->energyAmount )* (newtransaction->pricePerKwh);
+            tempPair->totalRevenue += (newtransaction->energyAmount) * (newtransaction->pricePerKwh);
             tempPair->BSCount++;
             foundPair = tempPair;
         }
@@ -207,7 +206,7 @@ status_code InsertTransaction(Transaction *newtransaction)
 
     if (foundPair == NULL)
     {
-        printf("Creating new Buyer-Seller pair\n");
+
         BuyerSellerPair *newPair = (BuyerSellerPair *)malloc(sizeof(BuyerSellerPair));
         if (newPair == NULL)
         {
@@ -227,7 +226,7 @@ status_code InsertTransaction(Transaction *newtransaction)
     // -------- Add Buyer to RegularBuyers if BSCount > 4 -------- //
     if (foundPair->BSCount > 4 && thisseller != NULL)
     {
-        printf("Adding buyer to regular buyers list\n");
+
         Buyer *tempbuyer = thisseller->regularBuyers;
         int alreadyExists = 0;
         while (tempbuyer != NULL && alreadyExists == 0)
@@ -242,7 +241,6 @@ status_code InsertTransaction(Transaction *newtransaction)
         {
             thisbuyer->next = thisseller->regularBuyers;
             thisseller->regularBuyers = thisbuyer;
-            printf("Buyer added to regular buyers list\n");
         }
     }
 
@@ -443,7 +441,7 @@ void listTransactionsInPeriod(const char *start, const char *end)
 
 Transaction *MergeListsEnergy(Transaction *list1, Transaction *list2)
 {
-    printf("Entered merge lists energy\n");
+
     Transaction dummy;
     Transaction *temp = &dummy;
     dummy.next = NULL;
@@ -467,13 +465,13 @@ Transaction *MergeListsEnergy(Transaction *list1, Transaction *list2)
         temp->next = list1;
     else
         temp->next = list2;
-    printf("Sorted\n");
+
     return dummy.next;
 }
 
 Transaction *SortEnergy(Transaction *head)
 {
-    printf("Entered sort energy\n");
+
     if (head != NULL && head->next != NULL)
     {
         Transaction *slow = head;
@@ -489,12 +487,10 @@ Transaction *SortEnergy(Transaction *head)
         Transaction *list2 = slow->next;
         slow->next = NULL;
 
-        printf("found list1 and list2\n");
         list1 = SortEnergy(list1);
         list2 = SortEnergy(list2);
 
         head = MergeListsEnergy(list1, list2);
-        printf("Sorted\n");
     }
 
     return head;
@@ -509,9 +505,9 @@ int HighestEnergyAmount(Transaction *head)
         highest_energy = head->energyAmount;
     else
     {
-        printf("Sorting based on energy amount\n");
+
         SortEnergy(head);
-        printf("Sorted in function highestenergy amount\n");
+
         highest_energy = head->energyAmount;
     }
     printf("Highest energy amount: %d\n", highest_energy);
@@ -545,7 +541,7 @@ Buyer *MergeListsBuyerEnergy(Buyer *list1, Buyer *list2)
         temp->next = list1;
     else
         temp->next = list2;
-    printf("Sorted\n");
+
     return dummy.next;
 }
 
@@ -568,10 +564,10 @@ Buyer *SortBuyerEnergy(Buyer *buyerHead)
 
         list1 = SortBuyerEnergy(list1);
         list2 = SortBuyerEnergy(list2);
-        printf("Sorted\n");
+
         buyerHead = MergeListsBuyerEnergy(list1, list2);
     }
-    printf("Sorted\n");
+
     return buyerHead;
 }
 
@@ -595,7 +591,7 @@ void SortBuyerEnergyAmount()
 
 BuyerSellerPair *MergeListsPair(BuyerSellerPair *list1, BuyerSellerPair *list2)
 {
-    printf("Entered the merging");
+
     BuyerSellerPair dummy;
     BuyerSellerPair *temp = &dummy;
     dummy.next = NULL;
@@ -619,7 +615,6 @@ BuyerSellerPair *MergeListsPair(BuyerSellerPair *list1, BuyerSellerPair *list2)
         temp->next = list1;
     else
         temp->next = list2;
-    printf("Sorted\n");
 
     return dummy.next;
 }
@@ -627,8 +622,9 @@ BuyerSellerPair *MergeListsPair(BuyerSellerPair *list1, BuyerSellerPair *list2)
 BuyerSellerPair *SortPair(BuyerSellerPair *pairHead)
 {
 
-    if(pairHead==NULL || pairHead->next==NULL)return pairHead;
-    
+    if (pairHead == NULL || pairHead->next == NULL)
+        return pairHead;
+
     if (pairHead != NULL && pairHead->next != NULL)
     {
         BuyerSellerPair *slow = pairHead;
@@ -646,9 +642,8 @@ BuyerSellerPair *SortPair(BuyerSellerPair *pairHead)
 
         list1 = SortPair(list1);
         list2 = SortPair(list2);
-        
+
         pairHead = MergeListsPair(list1, list2);
-       
     }
 
     return pairHead;
@@ -660,7 +655,7 @@ void SortBuyerSellerPair()
         printf("No Buyer-Seller pairs available\n");
     else
     {
-        pairHead=SortPair(pairHead);
+        pairHead = SortPair(pairHead);
         printf("Sorted Buyer-Seller pairs successfully\n");
     }
 
